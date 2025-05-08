@@ -1,0 +1,124 @@
+/* Base styles imported from machine-vision-hmi */
+@import url("https://rsms.me/inter/inter.css");
+
+/* Root Variables for Theme Colors */
+:root {
+  /* Primary colors */
+  --color-primary: #646cff;
+  --color-primary-hover: #535bf2;
+  
+  /* UI colors */
+  --color-background: #ffffff;
+  --color-surface: #f0f0f0;
+  --color-border: #ccc;
+  --color-shadow: rgba(0, 0, 0, 0.2);
+  
+  /* Status colors */
+  --color-success: #10b981; /* Green for successful operations */
+  --color-warning: #f59e0b; /* Amber for warnings */
+  --color-error: #ef4444;   /* Red for errors */
+  --color-info: #3b82f6;    /* Blue for information */
+  
+  /* Text colors */
+  --color-text-primary: #000000;
+  --color-text-secondary: #888888;
+  
+  /* Animation timings */
+  --animation-duration-short: 300ms;
+  --animation-duration-medium: 600ms;
+  --animation-duration-long: 1000ms;
+  
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  
+  /* Border radius */
+  --border-radius-sm: 4px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 12px;
+  
+  /* Font settings */
+  --font-family: 'Inter', sans-serif;
+  --font-size-xs: 12px;
+  --font-size-sm: 14px;
+  --font-size-md: 16px;
+  --font-size-lg: 18px;
+  --font-size-xl: 24px;
+}
+
+/* General layout */
+html, body {
+  font-family: var(--font-family);
+  color: var(--color-text-primary);
+  background-color: var(--color-background);
+  margin: 0;
+  padding: 0;
+}
+
+/* Container styles */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: var(--spacing-xl);
+}
+
+/* Scale indicator that stays fixed over zoom content */
+.scale-indicator {
+  position: absolute;
+  bottom: var(--spacing-md);
+  right: var(--spacing-md);
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  box-shadow: 0 2px 4px var(--color-shadow);
+  border: 1px solid var(--color-border);
+  z-index: 2000;
+  pointer-events: none;
+  max-width: 150px;
+  text-align: left;
+}
+
+.scale-indicator .text-xs {
+  font-size: var(--font-size-xs);
+  line-height: 1.2;
+}
+
+/* Status indicators */
+.status-success {
+  color: var(--color-success);
+}
+
+.status-warning {
+  color: var(--color-warning);
+}
+
+.status-error {
+  color: var(--color-error);
+}
+
+.status-info {
+  color: var(--color-info);
+}
+
+/* Animation for flashing border */
+@keyframes flashBorder {
+  0% { 
+    border-color: rgba(255, 0, 0, 1);
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.8);
+  }
+  50% { 
+    border-color: rgba(255, 0, 0, 0.3);
+    box-shadow: 0 0 0px rgba(255, 0, 0, 0.3);
+  }
+  100% { 
+    border-color: rgba(255, 0, 0, 1);
+    box-shadow: 0 0 8px rgba(255, 0, 0, 0.8);
+  }
+}
+
+.flashing-border {
+  animation: flashBorder 1.5s infinite;
+} 

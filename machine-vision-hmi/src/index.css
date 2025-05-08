@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure Konva stage is properly sized */
+.konvajs-content {
+  position: static !important;
+  background-color: #f0f0f0;
+}
+
+.konvajs-content canvas {
+  position: static !important;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+} 

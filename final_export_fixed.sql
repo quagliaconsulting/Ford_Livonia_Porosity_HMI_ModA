@@ -1,0 +1,753 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 16.6
+-- Dumped by pg_dump version 16.8 (Ubuntu 16.8-0ubuntu0.24.04.1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: postgres
+--
+
+-- *not* creating schema, since initdb creates it
+
+
+ALTER SCHEMA public OWNER TO postgres;
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: Cameras; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Cameras" (
+    serial_number text NOT NULL,
+    group_id integer,
+    sub_group integer,
+    ip text
+);
+
+
+ALTER TABLE public."Cameras" OWNER TO postgres;
+
+--
+-- Name: Current_Part; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Current_Part" (
+    id bigint NOT NULL,
+    "timestamp" timestamp with time zone,
+    belt text,
+    part text
+);
+
+
+ALTER TABLE public."Current_Part" OWNER TO postgres;
+
+--
+-- Name: Current_Part_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Current_Part_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."Current_Part_id_seq" OWNER TO postgres;
+
+--
+-- Name: Current_Part_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Current_Part_id_seq" OWNED BY public."Current_Part".id;
+
+
+--
+-- Name: Defects; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Defects" (
+    id bigint NOT NULL,
+    image bigint,
+    x integer,
+    y integer,
+    width integer,
+    height integer,
+    confidence real,
+    type text,
+    hand text,
+    uss_reviewed boolean,
+    system_generated boolean,
+    disposition text,
+    dispositioned_at timestamp with time zone,
+    supression_timestamp timestamp with time zone,
+    mode text,
+    iv_updated boolean,
+    metadata jsonb
+);
+
+
+ALTER TABLE public."Defects" OWNER TO postgres;
+
+--
+-- Name: Defects_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Defects_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."Defects_id_seq" OWNER TO postgres;
+
+--
+-- Name: Defects_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Defects_id_seq" OWNED BY public."Defects".id;
+
+
+--
+-- Name: HumanInspect; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."HumanInspect" (
+    id bigint NOT NULL,
+    scan_id text,
+    part_suffix text,
+    serial_no text,
+    julian_date text,
+    cast_id_1 integer,
+    cast_id_2 integer,
+    cast_id_3 integer,
+    defect_area text,
+    size text,
+    impreg text,
+    location_row integer,
+    location_column integer,
+    pass_fail text,
+    scan_datetime timestamp without time zone,
+    file_name text,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public."HumanInspect" OWNER TO postgres;
+
+--
+-- Name: HumanInspect_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."HumanInspect_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."HumanInspect_id_seq" OWNER TO postgres;
+
+--
+-- Name: HumanInspect_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."HumanInspect_id_seq" OWNED BY public."HumanInspect".id;
+
+
+--
+-- Name: Images; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Images" (
+    id bigint NOT NULL,
+    trigger bigint,
+    width integer,
+    height integer,
+    camera text,
+    media_id text,
+    image text,
+    ether_checked boolean
+);
+
+
+ALTER TABLE public."Images" OWNER TO postgres;
+
+--
+-- Name: Images_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Images_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."Images_id_seq" OWNER TO postgres;
+
+--
+-- Name: Images_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Images_id_seq" OWNED BY public."Images".id;
+
+
+--
+-- Name: Outflow; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Outflow" (
+    id bigint NOT NULL,
+    job_num integer,
+    total_outflow integer,
+    job_start timestamp without time zone,
+    job_end timestamp without time zone,
+    created_at timestamp without time zone
+);
+
+
+ALTER TABLE public."Outflow" OWNER TO postgres;
+
+--
+-- Name: Outflow_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Outflow_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."Outflow_id_seq" OWNER TO postgres;
+
+--
+-- Name: Outflow_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Outflow_id_seq" OWNED BY public."Outflow".id;
+
+
+--
+-- Name: Part_Information; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Part_Information" (
+    id integer NOT NULL,
+    model text,
+    part_name text,
+    part_number text,
+    packout_amount integer,
+    length numeric,
+    job_num text
+);
+
+
+ALTER TABLE public."Part_Information" OWNER TO postgres;
+
+--
+-- Name: Part_Information_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Part_Information_id_seq"
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."Part_Information_id_seq" OWNER TO postgres;
+
+--
+-- Name: Part_Information_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Part_Information_id_seq" OWNED BY public."Part_Information".id;
+
+
+--
+-- Name: Suppressed_Defects; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Suppressed_Defects" (
+    id bigint NOT NULL,
+    defect bigint,
+    suppressed_by bigint,
+    similarity numeric
+);
+
+
+ALTER TABLE public."Suppressed_Defects" OWNER TO postgres;
+
+--
+-- Name: Triggers; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public."Triggers" (
+    id bigint NOT NULL,
+    "timestamp" timestamp with time zone,
+    label integer,
+    part_instance text,
+    belt text,
+    part text
+);
+
+
+ALTER TABLE public."Triggers" OWNER TO postgres;
+
+--
+-- Name: Triggers_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public."Triggers_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public."Triggers_id_seq" OWNER TO postgres;
+
+--
+-- Name: Triggers_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public."Triggers_id_seq" OWNED BY public."Triggers".id;
+
+
+--
+-- Name: processed_files; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.processed_files (
+    filename character varying NOT NULL,
+    processed_at timestamp without time zone NOT NULL
+);
+
+
+ALTER TABLE public.processed_files OWNER TO postgres;
+
+--
+-- Name: Current_Part id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Current_Part" ALTER COLUMN id SET DEFAULT nextval('public."Current_Part_id_seq"'::regclass);
+
+
+--
+-- Name: Defects id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Defects" ALTER COLUMN id SET DEFAULT nextval('public."Defects_id_seq"'::regclass);
+
+
+--
+-- Name: HumanInspect id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."HumanInspect" ALTER COLUMN id SET DEFAULT nextval('public."HumanInspect_id_seq"'::regclass);
+
+
+--
+-- Name: Images id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Images" ALTER COLUMN id SET DEFAULT nextval('public."Images_id_seq"'::regclass);
+
+
+--
+-- Name: Outflow id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Outflow" ALTER COLUMN id SET DEFAULT nextval('public."Outflow_id_seq"'::regclass);
+
+
+--
+-- Name: Part_Information id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Part_Information" ALTER COLUMN id SET DEFAULT nextval('public."Part_Information_id_seq"'::regclass);
+
+
+--
+-- Name: Triggers id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Triggers" ALTER COLUMN id SET DEFAULT nextval('public."Triggers_id_seq"'::regclass);
+
+
+--
+-- Name: Cameras Cameras_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Cameras"
+    ADD CONSTRAINT "Cameras_pkey" PRIMARY KEY (serial_number);
+
+
+--
+-- Name: Current_Part Current_Part_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Current_Part"
+    ADD CONSTRAINT "Current_Part_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Defects Defects_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Defects"
+    ADD CONSTRAINT "Defects_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: HumanInspect HumanInspect_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."HumanInspect"
+    ADD CONSTRAINT "HumanInspect_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Images Images_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Images"
+    ADD CONSTRAINT "Images_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Outflow Outflow_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Outflow"
+    ADD CONSTRAINT "Outflow_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Part_Information Part_Information_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Part_Information"
+    ADD CONSTRAINT "Part_Information_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Suppressed_Defects Suppressed_Defects_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Suppressed_Defects"
+    ADD CONSTRAINT "Suppressed_Defects_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: Triggers Triggers_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Triggers"
+    ADD CONSTRAINT "Triggers_pkey" PRIMARY KEY (id);
+
+
+--
+-- Name: processed_files processed_files_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.processed_files
+    ADD CONSTRAINT processed_files_pkey PRIMARY KEY (filename);
+
+
+--
+-- Name: Outflow unique_job_numb_job_start ; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Outflow"
+    ADD CONSTRAINT "unique_job_numb_job_start " UNIQUE (job_num, job_start);
+
+
+--
+-- Name: Images camera_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Images"
+    ADD CONSTRAINT camera_fk FOREIGN KEY (camera) REFERENCES public."Cameras"(serial_number) NOT VALID;
+
+
+--
+-- Name: Defects image_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Defects"
+    ADD CONSTRAINT image_fk FOREIGN KEY (image) REFERENCES public."Images"(id) NOT VALID;
+
+
+--
+-- Name: Images trigger_fk; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public."Images"
+    ADD CONSTRAINT trigger_fk FOREIGN KEY (trigger) REFERENCES public."Triggers"(id) NOT VALID;
+
+
+--
+-- Name: my_publication; Type: PUBLICATION; Schema: -; Owner: postgres
+--
+
+CREATE PUBLICATION my_publication FOR ALL TABLES WITH (publish = 'insert, update, delete, truncate');
+
+
+ALTER PUBLICATION my_publication OWNER TO postgres;
+
+--
+-- Name: SCHEMA public; Type: ACL; Schema: -; Owner: postgres
+--
+
+REVOKE USAGE ON SCHEMA public FROM PUBLIC;
+GRANT ALL ON SCHEMA public TO PUBLIC;
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+-- Triggers data (last 10 records)
+ INSERT INTO "Triggers" VALUES (64372, '2025-05-08 10:03:22-04', 1, '38A25125390338RFML3P 7006 MC', 'trigger', '39MC');
+ INSERT INTO "Triggers" VALUES (64371, '2025-05-08 10:01:44-04', 1, '38A25125390340RFML3P 7006 MC', 'trigger', '39MC');
+ INSERT INTO "Triggers" VALUES (64370, '2025-05-08 10:00:54-04', 1, '38A25125390343RFML3P 7006 MC', 'trigger', '39MC');
+ INSERT INTO "Triggers" VALUES (64369, '2025-05-08 09:59:32-04', 1, '38A25125390343RFML3P 7006 MC', 'trigger', '39MC');
+ INSERT INTO "Triggers" VALUES (64368, '2025-05-08 09:58:44-04', 1, '38A25125390342RFML3P 7006 MC', 'trigger', '39MC');
+ INSERT INTO "Triggers" VALUES (64367, '2025-05-08 09:56:43-04', 1, '38A25125390344RFML3P 7006 MC', 'trigger', '39MC');
+ INSERT INTO "Triggers" VALUES (64366, '2025-05-08 09:55:53-04', 1, '38A25125390346RFML3P 7006 MC', 'trigger', '39MC');
+ INSERT INTO "Triggers" VALUES (64365, '2025-05-08 09:54:43-04', 1, '38A25125390347RFML3P 7006 MC', 'trigger', '39MC');
+ INSERT INTO "Triggers" VALUES (64364, '2025-05-08 09:53:53-04', 1, '38A25125390347RFML3P 7006 MC', 'trigger', '39MC');
+ INSERT INTO "Triggers" VALUES (64363, '2025-05-08 09:52:43-04', 1, '38A25125397379RFML3P 7006 MC', 'trigger', '39MC');
+
+-- Related Images data
+ INSERT INTO "Images" VALUES (318688, 64364, NULL, NULL, 'DM08617AAK00005', '8629dccb7a3b4c65b1db0c8a9b78f4af', E'E:\\images/05-08-2025/09/1/05-08-2025_09-53-53-649285_1-5_DM08617AAK00005_39MC_8629dccb7a3b4c65b1db0c8a9b78f4af_1_38A25125390347RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318689, 64364, NULL, NULL, 'DM08617AAK00003', '295498ce3fb64ff6813b706418b56cce', E'E:\\images/05-08-2025/09/1/05-08-2025_09-53-53-649285_1-3_DM08617AAK00003_39MC_295498ce3fb64ff6813b706418b56cce_1_38A25125390347RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318690, 64364, NULL, NULL, 'DM08617AAK00001', 'f066826b62af497095565a6432071944', E'E:\\images/05-08-2025/09/1/05-08-2025_09-53-53-649285_1-1_DM08617AAK00001_39MC_f066826b62af497095565a6432071944_1_38A25125390347RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318691, 64364, NULL, NULL, 'DM08617AAK00004', 'e3343bd0c570472caaed027a425773df', E'E:\\images/05-08-2025/09/1/05-08-2025_09-53-53-649285_1-4_DM08617AAK00004_39MC_e3343bd0c570472caaed027a425773df_1_38A25125390347RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318683, 64363, NULL, NULL, 'DM08617AAK00001', '30ae2befa1854d9fa2ec5a083da26434', E'E:\\images/05-08-2025/09/1/05-08-2025_09-52-43-321320_1-1_DM08617AAK00001_39MC_30ae2befa1854d9fa2ec5a083da26434_1_38A25125397379RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318684, 64363, NULL, NULL, 'DM08617AAK00003', '6ac3953c1bf64395abeb35d5179ed596', E'E:\\images/05-08-2025/09/1/05-08-2025_09-52-43-321320_1-3_DM08617AAK00003_39MC_6ac3953c1bf64395abeb35d5179ed596_1_38A25125397379RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318685, 64363, NULL, NULL, 'DM08617AAK00005', '792424abd46840cab6745d3088bd1a34', E'E:\\images/05-08-2025/09/1/05-08-2025_09-52-43-321320_1-5_DM08617AAK00005_39MC_792424abd46840cab6745d3088bd1a34_1_38A25125397379RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318686, 64363, NULL, NULL, 'DM08617AAK00002', '7972fbc9d7dc43f89d6ce3869a439c21', E'E:\\images/05-08-2025/09/1/05-08-2025_09-52-43-321320_1-2_DM08617AAK00002_39MC_7972fbc9d7dc43f89d6ce3869a439c21_1_38A25125397379RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318687, 64363, NULL, NULL, 'DM08617AAK00004', '0e634eba14544dc2b70d3db44b5dd5ec', E'E:\\images/05-08-2025/09/1/05-08-2025_09-52-43-321320_1-4_DM08617AAK00004_39MC_0e634eba14544dc2b70d3db44b5dd5ec_1_38A25125397379RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318692, 64364, NULL, NULL, 'DM08617AAK00002', '7c13a9c9887f48ba89f9a1cb311399a4', E'E:\\images/05-08-2025/09/1/05-08-2025_09-53-53-649285_1-2_DM08617AAK00002_39MC_7c13a9c9887f48ba89f9a1cb311399a4_1_38A25125390347RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318693, 64365, NULL, NULL, 'DM08617AAK00003', '11a8a7879b5c4391b70baa72da4a3d41', E'E:\\images/05-08-2025/09/1/05-08-2025_09-54-43-655328_1-3_DM08617AAK00003_39MC_11a8a7879b5c4391b70baa72da4a3d41_1_38A25125390347RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318694, 64365, NULL, NULL, 'DM08617AAK00002', 'a856e1c207774870a6e16738c7bd078d', E'E:\\images/05-08-2025/09/1/05-08-2025_09-54-43-655328_1-2_DM08617AAK00002_39MC_a856e1c207774870a6e16738c7bd078d_1_38A25125390347RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318695, 64365, NULL, NULL, 'DM08617AAK00004', 'c0ebe804a68947f0b683fccc35fb1661', E'E:\\images/05-08-2025/09/1/05-08-2025_09-54-43-655328_1-4_DM08617AAK00004_39MC_c0ebe804a68947f0b683fccc35fb1661_1_38A25125390347RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318696, 64365, NULL, NULL, 'DM08617AAK00005', '9ddfd8afc9e4421f95bc4c450ba92a20', E'E:\\images/05-08-2025/09/1/05-08-2025_09-54-43-655328_1-5_DM08617AAK00005_39MC_9ddfd8afc9e4421f95bc4c450ba92a20_1_38A25125390347RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318697, 64365, NULL, NULL, 'DM08617AAK00001', 'e769c68bdf644630a1464266b6ba76b0', E'E:\\images/05-08-2025/09/1/05-08-2025_09-54-43-655328_1-1_DM08617AAK00001_39MC_e769c68bdf644630a1464266b6ba76b0_1_38A25125390347RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318698, 64366, NULL, NULL, 'DM08617AAK00004', 'fb152041922b4649bdab43398827200a', E'E:\\images/05-08-2025/09/1/05-08-2025_09-55-53-823160_1-4_DM08617AAK00004_39MC_fb152041922b4649bdab43398827200a_1_38A25125390346RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318720, 64370, NULL, NULL, 'DM08617AAK00001', '0dfb385d6056456f8b3cd3d26d43b616', E'E:\\images/05-08-2025/10/1/05-08-2025_10-00-54-146406_1-1_DM08617AAK00001_39MC_0dfb385d6056456f8b3cd3d26d43b616_1_38A25125390343RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318721, 64370, NULL, NULL, 'DM08617AAK00004', '23ab2455d86b477e99c83497338e9abc', E'E:\\images/05-08-2025/10/1/05-08-2025_10-00-54-146406_1-4_DM08617AAK00004_39MC_23ab2455d86b477e99c83497338e9abc_1_38A25125390343RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318722, 64370, NULL, NULL, 'DM08617AAK00002', 'fa139119eb9d4ea5a5cc6af4ccb257fd', E'E:\\images/05-08-2025/10/1/05-08-2025_10-00-54-146406_1-2_DM08617AAK00002_39MC_fa139119eb9d4ea5a5cc6af4ccb257fd_1_38A25125390343RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318723, 64371, NULL, NULL, 'DM08617AAK00005', 'aa1387d99703472784e378bfcd65a547', E'E:\\images/05-08-2025/10/1/05-08-2025_10-01-44-147581_1-5_DM08617AAK00005_39MC_aa1387d99703472784e378bfcd65a547_1_38A25125390340RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318724, 64371, NULL, NULL, 'DM08617AAK00004', '0d322bd0241349db8855fd499f32a62f', E'E:\\images/05-08-2025/10/1/05-08-2025_10-01-44-147581_1-4_DM08617AAK00004_39MC_0d322bd0241349db8855fd499f32a62f_1_38A25125390340RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318725, 64371, NULL, NULL, 'DM08617AAK00003', '9270870291c04166b37d3a5200b706a8', E'E:\\images/05-08-2025/10/1/05-08-2025_10-01-44-147581_1-3_DM08617AAK00003_39MC_9270870291c04166b37d3a5200b706a8_1_38A25125390340RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318726, 64371, NULL, NULL, 'DM08617AAK00001', '62b82727773e4e138cb1503d56694755', E'E:\\images/05-08-2025/10/1/05-08-2025_10-01-44-147581_1-1_DM08617AAK00001_39MC_62b82727773e4e138cb1503d56694755_1_38A25125390340RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318727, 64371, NULL, NULL, 'DM08617AAK00002', '0e310f2a74e948d8bbe99ea9a37f32c2', E'E:\\images/05-08-2025/10/1/05-08-2025_10-01-44-147581_1-2_DM08617AAK00002_39MC_0e310f2a74e948d8bbe99ea9a37f32c2_1_38A25125390340RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318728, 64372, NULL, NULL, 'DM08617AAK00003', '5d411c4f82884cfb958195fcf6ba5987', E'E:\\images/05-08-2025/10/1/05-08-2025_10-03-22-528366_1-3_DM08617AAK00003_39MC_5d411c4f82884cfb958195fcf6ba5987_1_38A25125390338RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318729, 64372, NULL, NULL, 'DM08617AAK00001', 'a1dcacc2891245b09eff05b7b1fcd58b', E'E:\\images/05-08-2025/10/1/05-08-2025_10-03-22-528366_1-1_DM08617AAK00001_39MC_a1dcacc2891245b09eff05b7b1fcd58b_1_38A25125390338RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318730, 64372, NULL, NULL, 'DM08617AAK00005', '668e1062cb3240cf9538015337ce0f27', E'E:\\images/05-08-2025/10/1/05-08-2025_10-03-22-528366_1-5_DM08617AAK00005_39MC_668e1062cb3240cf9538015337ce0f27_1_38A25125390338RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318731, 64372, NULL, NULL, 'DM08617AAK00004', '70d5dc18bec74371b4844da6eaeeeff6', E'E:\\images/05-08-2025/10/1/05-08-2025_10-03-22-528366_1-4_DM08617AAK00004_39MC_70d5dc18bec74371b4844da6eaeeeff6_1_38A25125390338RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318732, 64372, NULL, NULL, 'DM08617AAK00002', '24df53bccf6b46deb0021cce77177cfc', E'E:\\images/05-08-2025/10/1/05-08-2025_10-03-22-528366_1-2_DM08617AAK00002_39MC_24df53bccf6b46deb0021cce77177cfc_1_38A25125390338RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318699, 64366, NULL, NULL, 'DM08617AAK00003', '12e5a88a92e743a09f9d391e8a9821e5', E'E:\\images/05-08-2025/09/1/05-08-2025_09-55-53-823160_1-3_DM08617AAK00003_39MC_12e5a88a92e743a09f9d391e8a9821e5_1_38A25125390346RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318700, 64366, NULL, NULL, 'DM08617AAK00002', '4b8d56d7291f4eca9114934a618333aa', E'E:\\images/05-08-2025/09/1/05-08-2025_09-55-53-823160_1-2_DM08617AAK00002_39MC_4b8d56d7291f4eca9114934a618333aa_1_38A25125390346RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318701, 64366, NULL, NULL, 'DM08617AAK00001', '37771e9b59d7428497dcda64471efaa6', E'E:\\images/05-08-2025/09/1/05-08-2025_09-55-53-823160_1-1_DM08617AAK00001_39MC_37771e9b59d7428497dcda64471efaa6_1_38A25125390346RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318702, 64366, NULL, NULL, 'DM08617AAK00005', '2861e3de359447f78b4bd3e8b98639aa', E'E:\\images/05-08-2025/09/1/05-08-2025_09-55-53-823160_1-5_DM08617AAK00005_39MC_2861e3de359447f78b4bd3e8b98639aa_1_38A25125390346RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318703, 64367, NULL, NULL, 'DM08617AAK00003', '671affb95aaa4aa9a4927381b3f62ca6', E'E:\\images/05-08-2025/09/1/05-08-2025_09-56-43-889155_1-3_DM08617AAK00003_39MC_671affb95aaa4aa9a4927381b3f62ca6_1_38A25125390344RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318704, 64367, NULL, NULL, 'DM08617AAK00005', '4f5e7975d56b4c67b418230fd66d6bbe', E'E:\\images/05-08-2025/09/1/05-08-2025_09-56-43-889155_1-5_DM08617AAK00005_39MC_4f5e7975d56b4c67b418230fd66d6bbe_1_38A25125390344RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318705, 64367, NULL, NULL, 'DM08617AAK00001', '708853a84a754d78971d77e74cdda862', E'E:\\images/05-08-2025/09/1/05-08-2025_09-56-43-889155_1-1_DM08617AAK00001_39MC_708853a84a754d78971d77e74cdda862_1_38A25125390344RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318706, 64367, NULL, NULL, 'DM08617AAK00002', '0a2dab0497314962a915a25303382f3c', E'E:\\images/05-08-2025/09/1/05-08-2025_09-56-43-889155_1-2_DM08617AAK00002_39MC_0a2dab0497314962a915a25303382f3c_1_38A25125390344RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318707, 64367, NULL, NULL, 'DM08617AAK00004', '71389b53a82043bcb5c214e1f02490d6', E'E:\\images/05-08-2025/09/1/05-08-2025_09-56-43-889155_1-4_DM08617AAK00004_39MC_71389b53a82043bcb5c214e1f02490d6_1_38A25125390344RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318708, 64368, NULL, NULL, 'DM08617AAK00005', '56378c5a20d04ffd81e0f8a92a87350a', E'E:\\images/05-08-2025/09/1/05-08-2025_09-58-44-319855_1-5_DM08617AAK00005_39MC_56378c5a20d04ffd81e0f8a92a87350a_1_38A25125390342RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318709, 64368, NULL, NULL, 'DM08617AAK00001', '458bffea4380452eb64d65d323fa439f', E'E:\\images/05-08-2025/09/1/05-08-2025_09-58-44-319855_1-1_DM08617AAK00001_39MC_458bffea4380452eb64d65d323fa439f_1_38A25125390342RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318710, 64368, NULL, NULL, 'DM08617AAK00003', '268ffc0dc0134fad9c958eb614aa6bb4', E'E:\\images/05-08-2025/09/1/05-08-2025_09-58-44-319855_1-3_DM08617AAK00003_39MC_268ffc0dc0134fad9c958eb614aa6bb4_1_38A25125390342RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318711, 64368, NULL, NULL, 'DM08617AAK00002', '4e431755aa1e4582921e78a799b5333a', E'E:\\images/05-08-2025/09/1/05-08-2025_09-58-44-319855_1-2_DM08617AAK00002_39MC_4e431755aa1e4582921e78a799b5333a_1_38A25125390342RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318712, 64368, NULL, NULL, 'DM08617AAK00004', '14922ee752fe4f8392daffc18a540bcd', E'E:\\images/05-08-2025/09/1/05-08-2025_09-58-44-319855_1-4_DM08617AAK00004_39MC_14922ee752fe4f8392daffc18a540bcd_1_38A25125390342RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318713, 64369, NULL, NULL, 'DM08617AAK00001', '41dfb572bd0a401cb6236b414bdb714f', E'E:\\images/05-08-2025/09/1/05-08-2025_09-59-32-791306_1-1_DM08617AAK00001_39MC_41dfb572bd0a401cb6236b414bdb714f_1_38A25125390343RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318714, 64369, NULL, NULL, 'DM08617AAK00005', '2fad4e1b9a9140beb4cc8efa0788a162', E'E:\\images/05-08-2025/09/1/05-08-2025_09-59-32-791306_1-5_DM08617AAK00005_39MC_2fad4e1b9a9140beb4cc8efa0788a162_1_38A25125390343RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318715, 64369, NULL, NULL, 'DM08617AAK00003', '6440985d29cc4ac1a124d604b1562529', E'E:\\images/05-08-2025/09/1/05-08-2025_09-59-32-791306_1-3_DM08617AAK00003_39MC_6440985d29cc4ac1a124d604b1562529_1_38A25125390343RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318716, 64369, NULL, NULL, 'DM08617AAK00004', '0d4d9b1e235f4624a51f6280b0bde66e', E'E:\\images/05-08-2025/09/1/05-08-2025_09-59-32-791306_1-4_DM08617AAK00004_39MC_0d4d9b1e235f4624a51f6280b0bde66e_1_38A25125390343RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318717, 64369, NULL, NULL, 'DM08617AAK00002', '024931deb42741da800f2df5b4a5ca2a', E'E:\\images/05-08-2025/09/1/05-08-2025_09-59-32-791306_1-2_DM08617AAK00002_39MC_024931deb42741da800f2df5b4a5ca2a_1_38A25125390343RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318718, 64370, NULL, NULL, 'DM08617AAK00005', 'a24e92f182cf4a8a9402c453cbb293b1', E'E:\\images/05-08-2025/10/1/05-08-2025_10-00-54-146406_1-5_DM08617AAK00005_39MC_a24e92f182cf4a8a9402c453cbb293b1_1_38A25125390343RFML3P 7006 MC.jpg', NULL);
+ INSERT INTO "Images" VALUES (318719, 64370, NULL, NULL, 'DM08617AAK00003', 'df832b54a7664e5bab8b76f5b527b6cf', E'E:\\images/05-08-2025/10/1/05-08-2025_10-00-54-146406_1-3_DM08617AAK00003_39MC_df832b54a7664e5bab8b76f5b527b6cf_1_38A25125390343RFML3P 7006 MC.jpg', NULL);
+
+-- Related Defects data
+ INSERT INTO "Defects" VALUES (214635, 318683, 29, 4641, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214636, 318684, 2773, 3388, 8, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214637, 318683, 4470, 4383, 12, 10, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214638, 318684, 4401, 2452, 8, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214639, 318683, 4680, 4066, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214640, 318684, 4428, 1953, 5, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214641, 318683, 4736, 2138, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214642, 318683, 4378, 567, 7, 10, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214643, 318683, 4292, 543, 7, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214644, 318683, 4424, 536, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214645, 318683, 4328, 536, 9, 11, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214646, 318683, 4493, 514, 10, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214647, 318683, 4464, 510, 15, 13, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214648, 318683, 4434, 504, 8, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214649, 318683, 4339, 503, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214650, 318683, 4402, 504, 9, 9, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214651, 318683, 4371, 502, 12, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214652, 318685, 1094, 5105, 7, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214653, 318685, 1107, 5074, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214654, 318685, 1136, 5072, 5, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214655, 318685, 996, 5053, 7, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214656, 318685, 813, 1819, 8, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214657, 318685, 4142, 1561, 8, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214658, 318686, 875, 1696, 8, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214659, 318686, 2977, 861, 8, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214660, 318686, 2756, 590, 6, 5, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214661, 318687, 5109, 4680, 6, 5, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214662, 318687, 2818, 4636, 9, 10, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214663, 318687, 4154, 4235, 11, 12, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214664, 318687, 3186, 3698, 11, 11, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214665, 318687, 3194, 2878, 6, 5, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214666, 318687, 1646, 862, 11, 13, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214667, 318687, 2712, 499, 8, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214668, 318688, 908, 5099, 10, 12, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214669, 318688, 1535, 2748, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214670, 318688, 812, 1824, 7, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214671, 318688, 958, 1606, 11, 9, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214672, 318689, 4664, 1799, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214673, 318690, 2680, 4618, 10, 11, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214674, 318690, 4733, 3847, 10, 10, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214675, 318691, 4180, 4620, 9, 9, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214676, 318691, 3278, 4457, 5, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214677, 318691, 3180, 2380, 15, 13, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214678, 318691, 929, 2200, 10, 11, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214679, 318692, 646, 2738, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214680, 318692, 815, 1717, 10, 10, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214681, 318693, 4402, 2451, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214682, 318693, 618, 2242, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214683, 318693, 4604, 1860, 9, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214684, 318693, 4616, 1848, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214685, 318693, 4526, 1472, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214686, 318694, 2484, 4370, 11, 10, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214687, 318694, 2034, 4296, 9, 9, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214688, 318696, 970, 5058, 10, 15, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214689, 318696, 1078, 5024, 10, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214690, 318696, 1127, 4996, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214691, 318696, 1198, 4911, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214692, 318696, 814, 1816, 11, 12, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214693, 318696, 962, 1598, 14, 9, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214694, 318698, 4724, 4592, 7, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214695, 318699, 4404, 2456, 6, 5, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214696, 318699, 4535, 2136, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214697, 318700, 828, 1670, 9, 9, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214698, 318700, 1012, 1488, 9, 9, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214699, 318700, 1614, 854, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214700, 318701, 4738, 3864, 10, 9, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214701, 318701, 3188, 3325, 9, 10, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214702, 318701, 858, 3196, 9, 9, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214703, 318701, 4241, 615, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214704, 318702, 4298, 5102, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214705, 318702, 1198, 4902, 14, 9, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214706, 318702, 1541, 2721, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214707, 318702, 1648, 2611, 7, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214708, 318702, 966, 1601, 7, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214709, 318703, 4276, 2628, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214710, 318705, 4956, 2706, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214711, 318704, 1083, 4757, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214712, 318703, 4392, 2451, 9, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214713, 318705, 3414, 2593, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214714, 318704, 948, 1600, 9, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214715, 318703, 612, 2362, 6, 5, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214716, 318705, 4285, 2103, 6, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214717, 318703, 609, 2242, 10, 10, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214718, 318705, 4242, 2041, 7, 12, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214719, 318705, 4586, 1090, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214720, 318706, 2785, 944, 8, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214721, 318707, 3986, 4579, 8, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214722, 318707, 4138, 4341, 13, 12, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214723, 318708, 896, 5005, 9, 10, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214724, 318708, 3946, 4936, 10, 10, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214725, 318709, 4768, 1032, 11, 11, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214726, 318709, 4784, 1016, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214727, 318710, 4396, 2452, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214728, 318710, 4630, 1829, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214729, 318711, 3086, 1030, 9, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214730, 318711, 1683, 831, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214731, 318712, 1692, 668, 8, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214732, 318713, 1767, 3382, 10, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214733, 318713, 4549, 1034, 10, 9, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214734, 318714, 2918, 2225, 7, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214735, 318714, 809, 1823, 10, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214736, 318714, 954, 1606, 8, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214737, 318715, 4417, 1640, 6, 5, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214738, 318716, 4227, 4566, 8, 9, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214739, 318716, 4544, 4558, 8, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214740, 318716, 4063, 4546, 10, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214741, 318716, 3184, 1810, 7, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214742, 318716, 3014, 1386, 5, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214743, 318716, 3034, 1335, 8, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214744, 318717, 3175, 888, 10, 11, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214745, 318718, 814, 1820, 5, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214746, 318718, 1034, 1713, 5, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214747, 318718, 4380, 1657, 10, 10, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214748, 318718, 1627, 1530, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214749, 318719, 4287, 2630, 8, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214750, 318719, 4406, 2452, 8, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214751, 318719, 4560, 1906, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214752, 318719, 4610, 1859, 10, 10, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214753, 318719, 4527, 1474, 10, 9, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214754, 318720, 4635, 3463, 8, 10, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214755, 318721, 3872, 4662, 11, 13, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214756, 318721, 4088, 4586, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214757, 318721, 5091, 790, 6, 5, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214758, 318722, 3558, 599, 7, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214759, 318723, 1126, 4761, 7, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214760, 318723, 800, 1822, 15, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214761, 318724, 3168, 2522, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214762, 318724, 4240, 2329, 9, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214763, 318725, 4393, 2454, 8, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214764, 318725, 674, 2414, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214765, 318725, 664, 2405, 7, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214766, 318726, 4598, 4041, 6, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214767, 318726, 1710, 3368, 14, 13, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214768, 318726, 3004, 2344, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214769, 318726, 3816, 1324, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214770, 318727, 936, 1396, 9, 9, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214771, 318728, 4508, 1499, 9, 12, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214772, 318728, 4334, 1104, 8, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214773, 318729, 1131, 4592, 8, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214774, 318729, 4961, 2912, 6, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214775, 318729, 3892, 2590, 16, 25, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214776, 318729, 4604, 1818, 7, 6, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214777, 318729, 586, 720, 9, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214778, 318730, 4414, 2976, 7, 7, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214779, 318730, 958, 1601, 13, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214780, 318731, 1692, 4590, 7, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214781, 318731, 1654, 4533, 8, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214782, 318731, 1674, 4452, 10, 12, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214783, 318732, 707, 3203, 8, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214784, 318732, 616, 2894, 6, 5, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+ INSERT INTO "Defects" VALUES (214785, 318732, 609, 2265, 8, 8, 0.9, '0', NULL, NULL, true, NULL, NULL, NULL, NULL, NULL, NULL);
+

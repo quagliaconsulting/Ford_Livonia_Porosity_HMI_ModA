@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import base styles with variables and custom classes */
+@import './base.css';
+
+/* Override default image behavior */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Ensure Konva stage is properly sized */
+.konvajs-content {
+  position: static !important;
+  background-color: var(--color-surface);
+}
+
+.konvajs-content canvas {
+  position: static !important;
+  box-shadow: 0 0 10px var(--color-shadow);
+} 
+
+/* Common UI components */
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply px-4 py-2 rounded-md transition-colors duration-300 font-medium;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-hover;
+  }
+  
+  .btn-success {
+    @apply bg-success text-white hover:bg-success/90;
+  }
+  
+  .btn-error {
+    @apply bg-error text-white hover:bg-error/90;
+  }
+  
+  /* Cards */
+  .card {
+    @apply bg-white p-4 rounded-md shadow border border-gray-300;
+  }
+  
+  /* Status indicators */
+  .status-badge {
+    @apply px-2 py-1 rounded-sm text-xs font-medium;
+  }
+  
+  .status-badge-success {
+    @apply bg-success/20 text-success;
+  }
+  
+  .status-badge-error {
+    @apply bg-error/20 text-error;
+  }
+  
+  /* Container layout */
+  .container-layout {
+    @apply max-w-7xl mx-auto px-4 py-8;
+  }
+} 

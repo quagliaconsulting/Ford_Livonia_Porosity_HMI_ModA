@@ -1,0 +1,149 @@
+/* Component-specific styles from the machine-vision-hmi app */
+
+/* Camera component styles */
+.camera-container {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  overflow: hidden;
+  position: relative;
+  background-color: var(--color-surface);
+  height: 100%;
+}
+
+.camera-image-container {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-image {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
+.camera-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-background);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.camera-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--color-background);
+  border-top: 1px solid var(--color-border);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+/* Detection overlay styles */
+.detection-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.detection-box {
+  position: absolute;
+  border: 2px solid var(--color-error);
+  background-color: transparent;
+}
+
+.detection-label {
+  position: absolute;
+  top: -20px;
+  left: 0;
+  background-color: var(--color-error);
+  color: white;
+  padding: var(--spacing-xs);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--font-size-xs);
+  white-space: nowrap;
+}
+
+/* Expanded view styles */
+.expanded-view {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--color-background);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+.expanded-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.expanded-content {
+  flex: 1;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.expanded-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--color-border);
+}
+
+/* Scale indicator */
+.scale-indicator {
+  position: absolute;
+  bottom: var(--spacing-md);
+  right: var(--spacing-md);
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  box-shadow: 0 2px 4px var(--color-shadow);
+  border: 1px solid var(--color-border);
+  z-index: 100;
+  pointer-events: none;
+}
+
+/* Status icons */
+.status-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-icon-success {
+  color: var(--color-success);
+}
+
+.status-icon-error {
+  color: var(--color-error);
+}
+
+.status-icon-warning {
+  color: var(--color-warning);
+}
+
+.status-icon-info {
+  color: var(--color-info);
+} 
