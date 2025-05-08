@@ -8,6 +8,8 @@ from pathlib import Path
 from typing import Optional, Dict, Any, Tuple
 import yaml
 from sqlalchemy.orm import Session
+import re # Import regex module
+import posixpath # Import posixpath for FTP paths
 
 # Load configuration
 config_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'config', 'config.yaml')
@@ -116,15 +118,17 @@ def fetch_ftp_image(image_path: str) -> str:
         ftp_config = IMAGE_ACCESS.get('ftp', {})
         base_path = ftp_config.get('base_path', '')
         
-        # Handle trailing/leading slashes
-        if base_path and not base_path.endswith('/'):
-            base_path += '/'
+        # Ensure base_path uses forward slashes and is clean
+        cleaned_base_path = base_path.replace('\\\\', '/').strip('/')
         
-        if image_path.startswith('/'):
-            image_path = image_path[1:]
+        # Ensure image_path uses forward slashes and is clean (relative)
+        cleaned_image_path = image_path.replace('\\\\', '/').strip('/')
         
-        remote_path = f"{base_path}{image_path}"
+        # Join using posixpath for guaranteed forward slashes
+        remote_path = posixpath.join(cleaned_base_path, cleaned_image_path)
         
+        logger.debug(f"Attempting to retrieve FTP file from remote path: {remote_path}")
+
         # Create parent directories if they don't exist
         os.makedirs(os.path.dirname(local_path), exist_ok=True)
         
@@ -143,47 +147,94 @@ def fetch_ftp_image(image_path: str) -> str:
 
 def get_local_image_path(image_path: str) -> Optional[str]:
     """
-    Get the local path for an image. Handles relative paths using fallback_path
-    and absolute paths (including Windows drive letters).
-    Returns None if the file doesn't exist.
+    Get the local path for an image when running in 'local' protocol mode.
+    Handles potentially incorrect absolute paths (e.g., Windows paths from DB when running on Linux)
+    by prioritizing joining the relative part with FALLBACK_PATH.
+    Returns None if the file cannot be found.
     """
     if not image_path:
         logger.warning("Received empty image_path string.")
         return None
-        
-    # Clean up potential mixed slashes from DB string just in case
-    # os.path functions generally handle mixed slashes, but explicit is safer
-    cleaned_image_path = os.path.normpath(image_path)
 
-    # Check if the path from the database is already absolute for the current OS
-    if os.path.isabs(cleaned_image_path):
-        file_path = cleaned_image_path
-        # logger.debug(f"Using absolute path from database: {file_path}") # Optional debug
-    else:
-        # If relative, join with the fallback path from config
-        if not FALLBACK_PATH:
-             logger.error("Relative image path found in DB, but fallback_path is not configured.")
-             return None
-        file_path = os.path.join(FALLBACK_PATH, cleaned_image_path)
-        # logger.debug(f"Using relative path from database joined with fallback: {file_path}") # Optional debug
+    if not FALLBACK_PATH:
+         logger.error("Local protocol selected, but image_access.fallback_path is not configured in config.yaml.")
+         return None
 
-    # Check if the final constructed file exists
-    if os.path.isfile(file_path):
-        # logger.debug(f"Confirmed image file exists: {file_path}") # Optional debug
-        return file_path
+    # Normalize slashes first for consistency from DB
+    normalized_db_path = image_path.replace('\\\\', '/')
+
+    # --- Strategy 1: Try to construct path using FALLBACK_PATH and relative part from DB ---
+    # This regex tries to find a common root like 'images/' or a drive letter followed by 'images/'
+    # and captures the path part *after* it.
+    # Example DB paths:
+    #   "images/2023/01/01/img.jpg" -> "2023/01/01/img.jpg"
+    #   "E:/images/2023/01/01/img.jpg" -> "2023/01/01/img.jpg"
+    #   "\\\\SERVER\\share\\images\\2023\\01\\01\\img.jpg" -> "2023/01/01/img.jpg"
+    #   "05-08-2025/14/1/05-08-2025_14-24-10-609029_1-3_DM08617AAK00003_39MC_7ce65bfe6ca44c5197be746b01a3ecad_1_38A25126390768RFML3P 7006 MC.jpg"
+    #      -> will be treated as relative if it doesn't match the explicit patterns below.
+
+    relative_part_from_db = normalized_db_path # Default to using the whole path as relative
+
+    # Try to strip known prefixes if they exist to get a cleaner relative path
+    # Common prefixes to strip. Order might matter if paths are very unusual.
+    # This specifically targets 'images' as a potential root folder name within the path.
+    # If your DB paths are *always* relative from some point, you might not need this complex regex.
+    # The goal is to isolate the part of the path that is truly relative to your FALLBACK_PATH or FTP base_path.
+
+    # Attempt to find 'images/' (case-insensitive) and take everything after it
+    match = re.search(r"(?:[a-zA-Z]:(?:/|\\\\))?.*?images(?:/|\\\\)(.*)", normalized_db_path, re.IGNORECASE)
+    if match and match.group(1):
+        relative_part_from_db = match.group(1)
     else:
-        logger.warning(f"Image file not found at resolved path: {file_path}. Check path and permissions.")
-        # Attempt using fallback_path directly if initial path was absolute but failed
-        # This covers cases where DB has absolute path but it's wrong on current server
-        if os.path.isabs(cleaned_image_path) and FALLBACK_PATH:
-             alt_path = os.path.join(FALLBACK_PATH, os.path.basename(cleaned_image_path))
-             logger.warning(f"Attempting alternative path using fallback base: {alt_path}")
-             if os.path.isfile(alt_path):
-                 return alt_path
-             else:
-                 logger.error(f"Alternative path also not found: {alt_path}")
-                 
-        return None
+        # If 'images/' is not found, and the path looks absolute (e.g. starts with / or drive letter),
+        # it's unlikely to be simply joinable with FALLBACK_PATH unless FALLBACK_PATH is '/'.
+        # For now, we'll still try joining it, but this might indicate a config mismatch.
+        # If it's already relative (no leading / or drive letter), use it as is.
+        if normalized_db_path.startswith('/') or re.match(r"^[a-zA-Z]:", normalized_db_path):
+            # This is an absolute-looking path that didn't match the 'images/' pattern.
+            # It's less likely to be correctly joinable with FALLBACK_PATH.
+            # We will try, but also log a warning if it fails.
+            pass # Keep relative_part_from_db as is.
+    
+    # Clean the extracted relative part
+    cleaned_relative_part = relative_part_from_db.strip('/')
+
+
+    potential_path_fallback_join = None
+    if FALLBACK_PATH and cleaned_relative_part: # Ensure both are non-empty
+        # os.path.join is usually robust, but normpath helps clean up ".." or "//"
+        potential_path_fallback_join = os.path.normpath(os.path.join(FALLBACK_PATH, cleaned_relative_part))
+        logger.debug(f"Attempting path via fallback + relative: {potential_path_fallback_join}")
+        if os.path.isfile(potential_path_fallback_join):
+            return potential_path_fallback_join
+        else:
+            logger.warning(f"Path via fallback+relative not found: {potential_path_fallback_join}")
+            # Keep potential_path_fallback_join value for logging if all strategies fail
+
+
+    # --- Strategy 2: Check if the normalized_db_path is an absolute path *on this OS* and exists ---
+    # This covers cases where DB stores correct absolute paths for the *current* server OS
+    # or if FALLBACK_PATH itself was the correct absolute path and joining was not needed.
+    absolute_db_path_check = os.path.normpath(normalized_db_path) 
+    if os.path.isabs(absolute_db_path_check):
+        logger.debug(f"DB path '{absolute_db_path_check}' is absolute for this OS. Checking if it exists.")
+        if os.path.isfile(absolute_db_path_check):
+            logger.info(f"Using absolute path directly from DB (or it was already resolved): {absolute_db_path_check}")
+            return absolute_db_path_check
+        else:
+            logger.warning(f"Absolute path from DB not found: {absolute_db_path_check}")
+    
+    # --- Final Logging if file not found by any strategy ---
+    if potential_path_fallback_join and not os.path.isfile(potential_path_fallback_join):
+         logger.error(f"File not found. Last fallback-join attempt was {potential_path_fallback_join}. Check FALLBACK_PATH ('{FALLBACK_PATH}') and DB image path ('{image_path}'). Ensure the relative part ('{cleaned_relative_part}') correctly maps.")
+    elif os.path.isabs(absolute_db_path_check) and not os.path.isfile(absolute_db_path_check):
+         logger.error(f"File not found. Absolute path from DB '{absolute_db_path_check}' does not exist on this server.")
+    elif not os.path.isabs(normalized_db_path) and not potential_path_fallback_join : # Should not happen if FALLBACK_PATH is set
+         logger.error(f"Could not resolve image path: '{image_path}'. It was not absolute and could not be combined with FALLBACK_PATH ('{FALLBACK_PATH}').")
+    else: # Generic message if other conditions didn't pinpoint the issue
+        logger.error(f"Could not resolve image path: '{image_path}' using current strategies. FALLBACK_PATH='{FALLBACK_PATH}', DB_PATH_NORMALIZED='{normalized_db_path}'")
+
+    return None
 
 
 def get_image_file_path(image) -> Optional[str]:
