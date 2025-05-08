@@ -1,0 +1,64 @@
+# Ford Livonia Transmission Plant - Porosity HMI Configuration
+
+# Database Configuration
+database:
+  host: "100.103.167.12"  # Remote machine address
+  port: 5432
+  username: "postgres"
+  password: "ussvision1"  # Use environment variables in production
+  dbname: "Porosity_System"
+  pool_size: 20
+  max_overflow: 10
+
+# Image Access
+image_access:
+  protocol: 'ftp'  # Options: local, sftp, ftp
+  fallback_path: '/home/james/Documents/jq_dev/Ford_Livonia_Porosity_HMI/machine-vision-hmi/public/images'  # Fallback path for development
+  ftp:
+    host: '100.103.167.12'  # Remote machine that hosts images
+    username: 'MNolan'  # FTP username for remote machine
+    password: 'ussvision1'  # Store actual password in backend .env (IMAGE_ACCESS_FTP_PASSWORD)
+    base_path: 'E:/images'  # Base path on remote machine where images are stored
+    cache_enabled: true  # Enable local caching of images
+    cache_ttl_seconds: 3600  # How long to cache images locally
+
+# API Configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  debug: true
+  cors_origins:
+    - "http://localhost:5173"  # Vite dev server
+    - "http://localhost:4173"  # Vite preview server
+
+# UI Configuration
+ui:
+  client: "Ford"
+  site: "Livonia Transmission"
+  line: "Mod A"
+  max_zoom: 6.0
+  app_title: "Ford Livonia Porosity HMI"
+  client_logo: "../../machine-vision-hmi/public/images/Ford.png"
+  service_logo: "../../machine-vision-hmi/public/images/USS.png"
+  logo_size: 65
+
+# Region Analysis
+region_analysis:
+  default_pixel_density: 95.0  # pixels per mm (95 / 7.9375 from frontend)
+  default_size_threshold: 1.0  # mm
+  default_density_threshold: 3  # count
+  default_proximity_threshold: 5.0  # mm
+  
+# Logging
+logging:
+  level: "INFO"
+  file: "logs/app.log"
+  max_size_mb: 100
+  backup_count: 5
+
+# Authentication
+auth:
+  secret_key: "your-secret-key"  # Use environment variables in production
+  algorithm: "HS256"
+  access_token_expire_minutes: 30
+  pin_auth_enabled: true  # Enable time-based PIN authentication

@@ -5,6 +5,7 @@ import Header from './components/Header';
 import MetadataBar from './components/MetadataBar';
 import CameraGrid from './components/CameraGrid';
 import ExpandedCameraModal from './components/ExpandedCameraModal';
+import { CameraService } from './api/cameraService'; // Import CameraService
 
 // Keep CSS needed globally or move to index.css/App.css
 const flashingBorder = `
@@ -18,18 +19,20 @@ const flashingBorder = `
 .react-transform-component { width: 100% !important; height: 100% !important; }
 `;
 
-// Main App component - now much simpler
+// Main App component
 const App = () => {
-  const [selectedCamera, setSelectedCamera] = useState(null);
-  const [selectedCameraState, setSelectedCameraState] = useState(null);
-  const cameraIds = [1, 2, 3, 4, 5];
+  const [selectedCamera, setSelectedCamera] = useState(null); // Stores serial_number
+  const [selectedCameraState, setSelectedCameraState] = useState(null); // Stores { status, detections, imageUrl, latestImageId }
+  const [cameras, setCameras] = useState([]); // Stores array of camera objects
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Metadata - could be moved to config
+  // Static metadata for now, can be dynamic later
   const metadata = {
     customer: 'Ford',
     site: 'Livonia Transmission',
     line: 'Mod A',
-    serialNo: '387090',
+    serialNo: '387090', // This seems like a part serial, not app/line serial. Clarify if needed.
   };
 
   // Inject global styles
@@ -41,11 +44,32 @@ const App = () => {
       document.head.removeChild(styleElement);
     };
   }, []);
+
+  // Fetch cameras on component mount
+  useEffect(() => {
+    const fetchCameras = async () => {
+      try {
+        setLoading(true);
+        const camerasData = await CameraService.getAllCameras();
+        setCameras(camerasData || []); // Ensure cameras is always an array
+        setError(null);
+      } catch (err) {
+        console.error('Failed to fetch cameras:', err);
+        setError(err.message || 'Failed to load cameras. Please try again later.');
+        setCameras([]); // Set to empty array on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCameras();
+  }, []);
   
   // Callback for when a camera card is selected
-  const handleCameraSelect = (id, cameraState) => {
+  // `id` is camera.serial_number, `cameraFullState` is { status, detections, imageUrl, latestImageId }
+  const handleCameraSelect = (id, cameraFullState) => {
     setSelectedCamera(id);
-    setSelectedCameraState(cameraState);
+    setSelectedCameraState(cameraFullState);
   };
 
   // Callback to close the modal
@@ -59,13 +83,26 @@ const App = () => {
     <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
       <Header />
       <MetadataBar metadata={metadata} />
-      <CameraGrid cameraIds={cameraIds} onSelect={handleCameraSelect} />
+      {loading ? (
+        <div className="flex-grow flex items-center justify-center">
+          <p className="text-gray-500">Loading cameras...</p>
+        </div>
+      ) : error ? (
+        <div className="flex-grow flex items-center justify-center">
+          <p className="text-red-500 text-center px-4">{error}</p>
+        </div>
+      ) : (
+        <CameraGrid 
+          cameras={cameras} // Pass the array of camera objects
+          onSelect={handleCameraSelect} 
+        />
+      )}
 
       {/* Render modal conditionally */}
-      {selectedCamera && (
+      {selectedCamera && selectedCameraState && (
         <ExpandedCameraModal
-          cameraId={selectedCamera}
-          initialState={selectedCameraState}
+          cameraId={selectedCamera} // This is serial_number
+          initialState={selectedCameraState} // This is { status, detections, imageUrl, latestImageId }
           onClose={handleCloseModal}
         />
       )}
