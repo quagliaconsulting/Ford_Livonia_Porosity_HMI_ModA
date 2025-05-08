@@ -682,7 +682,7 @@ const ExpandedCameraModal = ({ cameraId, initialState, onClose }) => {
             <div className="bg-white rounded-lg border p-3 shadow-sm flex-shrink-0">
               <h3 className="font-semibold text-lg mb-3 text-center">Part Information</h3>
               <div className="mb-3">
-                 <span className="font-medium text-sm">Part Type:</span>
+                <span className="font-medium text-sm">Part Type:</span>
                  <span className="ml-2 text-sm font-mono bg-gray-100 px-2 py-0.5 rounded">{currentPartType || 'Loading...'}</span> 
               </div>
               <div>

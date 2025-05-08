@@ -143,21 +143,47 @@ def fetch_ftp_image(image_path: str) -> str:
 
 def get_local_image_path(image_path: str) -> Optional[str]:
     """
-    Get the local path for an image.
+    Get the local path for an image. Handles relative paths using fallback_path
+    and absolute paths (including Windows drive letters).
     Returns None if the file doesn't exist.
     """
-    # Use the fallback path for local access
-    file_path = os.path.join(FALLBACK_PATH, image_path)
-    
-    # Handle absolute paths in the image_path
-    if image_path.startswith('/'):
-        file_path = image_path
-    
-    # Check if the file exists
+    if not image_path:
+        logger.warning("Received empty image_path string.")
+        return None
+        
+    # Clean up potential mixed slashes from DB string just in case
+    # os.path functions generally handle mixed slashes, but explicit is safer
+    cleaned_image_path = os.path.normpath(image_path)
+
+    # Check if the path from the database is already absolute for the current OS
+    if os.path.isabs(cleaned_image_path):
+        file_path = cleaned_image_path
+        # logger.debug(f"Using absolute path from database: {file_path}") # Optional debug
+    else:
+        # If relative, join with the fallback path from config
+        if not FALLBACK_PATH:
+             logger.error("Relative image path found in DB, but fallback_path is not configured.")
+             return None
+        file_path = os.path.join(FALLBACK_PATH, cleaned_image_path)
+        # logger.debug(f"Using relative path from database joined with fallback: {file_path}") # Optional debug
+
+    # Check if the final constructed file exists
     if os.path.isfile(file_path):
+        # logger.debug(f"Confirmed image file exists: {file_path}") # Optional debug
         return file_path
-    
-    return None
+    else:
+        logger.warning(f"Image file not found at resolved path: {file_path}. Check path and permissions.")
+        # Attempt using fallback_path directly if initial path was absolute but failed
+        # This covers cases where DB has absolute path but it's wrong on current server
+        if os.path.isabs(cleaned_image_path) and FALLBACK_PATH:
+             alt_path = os.path.join(FALLBACK_PATH, os.path.basename(cleaned_image_path))
+             logger.warning(f"Attempting alternative path using fallback base: {alt_path}")
+             if os.path.isfile(alt_path):
+                 return alt_path
+             else:
+                 logger.error(f"Alternative path also not found: {alt_path}")
+                 
+        return None
 
 
 def get_image_file_path(image) -> Optional[str]:
